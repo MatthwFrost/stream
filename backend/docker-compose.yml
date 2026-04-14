@@ -1,0 +1,73 @@
+# backend/docker-compose.yml
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: stream
+      POSTGRES_PASSWORD: stream
+      POSTGRES_DB: stream
+    expose:
+      - "5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U stream"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    # No host port — only reachable within the Docker network
+    expose:
+      - "6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      target: api
+    expose:
+      - "8000"
+    environment:
+      DATABASE_URL: postgresql+asyncpg://stream:stream@postgres:5432/stream
+      REDIS_URL: redis://redis:6379/0
+      NEWSAPI_KEY: ${NEWSAPI_KEY:-}
+      GNEWS_API_KEY: ${GNEWS_API_KEY:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  worker:
+    build:
+      context: .
+      target: worker
+    environment:
+      DATABASE_URL: postgresql+asyncpg://stream:stream@postgres:5432/stream
+      REDIS_URL: redis://redis:6379/0
+      NEWSAPI_KEY: ${NEWSAPI_KEY:-}
+      GNEWS_API_KEY: ${GNEWS_API_KEY:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - api
+
+volumes:
+  pgdata:

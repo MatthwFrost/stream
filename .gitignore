@@ -1,0 +1,39 @@
+# macOS
+.DS_Store
+
+# Frontend (app/)
+app/node_modules/
+app/build/
+app/.svelte-kit/
+app/.vite/
+
+# Tauri / Rust
+app/src-tauri/target/
+app/src-tauri/gen/schemas/
+
+# Python / backend
+backend/.venv/
+backend/__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+backend/*.egg-info/
+backend/**/*.egg-info/
+backend/.pytest_cache/
+backend/dist/
+backend/build/
+
+# Env files (keep .env.example)
+.env
+.env.local
+backend/.env
+app/.env
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
