@@ -1,1 +1,1 @@
-vibe coded new stream app for my desktop
+Weekend project to build a desktop that has a constant stream of news articles. I can select tags that I am interested in, currently Technology, Oil, Sustainability, and Politics. I wanted an app that was incredibly minimal and served me the latest news articles at a glance.
